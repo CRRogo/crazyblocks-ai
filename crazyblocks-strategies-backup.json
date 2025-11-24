@@ -1,0 +1,782 @@
+{
+  "version": "1.0",
+  "generation": 8258,
+  "timestamp": 1763857514196,
+  "bestFitness": 211.0,
+  "bestScore": 333,
+  "populationSize": 50,
+  "eliteStrategies": [
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1695779103860884,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 211.0,
+      "bestScore": 333,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7931263049941357,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 184.33333333333334,
+      "bestScore": 201,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 156.33333333333334,
+      "bestScore": 209,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 155.66666666666666,
+      "bestScore": 197,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.2540794972364917,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -2,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 153.33333333333334,
+      "bestScore": 246,
+      "gamesPlayed": 0
+    }
+  ],
+  "fullPopulation": [
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1695779103860884,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 211.0,
+      "bestScore": 333,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7931263049941357,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 184.33333333333334,
+      "bestScore": 201,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 156.33333333333334,
+      "bestScore": 209,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 155.66666666666666,
+      "bestScore": 197,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.2540794972364917,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -2,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 153.33333333333334,
+      "bestScore": 246,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.882669258588587,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1695779103860884,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7931263049941357,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.8578187250716551,
+        "spaceCreationWeight": 0.4055873655841893
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -0.947910587139469,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.7207152076613369,
+        "cascadePotentialWeight": -1.2540794972364917,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.621086315503907,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.3829829731791451,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5705301852300275
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.3829829731791451,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.8176672178071838,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5705301852300275
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -1.763586876279244,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.9952410726519678,
+        "spaceCreationWeight": 0.4410639912213376
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.33203447338496195,
+        "cascadePotentialWeight": -1.3449926368450562,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.8103445596781922,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1695779103860884,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -1.2540794972364917,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -2,
+        "spaceCreationWeight": 0.5740187710477243
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -1.2998066306575085,
+        "topClearWeight": -1.778448126016998,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.6583660615461255
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7931263049941357,
+        "bottomAvoidWeight": -0.947910587139469,
+        "colorDiversityWeight": -1.0147143441658348,
+        "isolationPenalty": -1.882669258588587,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.110330287179154,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.3829829731791451,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5705301852300275
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.2725500327926297,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -1.04828828907891,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.7530469235599427,
+        "cascadePotentialWeight": -1.4445155966089245,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.569077272731775,
+        "spaceCreationWeight": 0.6878842732483774
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.7434589311831792,
+        "spaceCreationWeight": 0.5705301852300275
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.567039314389077,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9249779780247476,
+        "colorDiversityWeight": -1.0556339393403193,
+        "isolationPenalty": -1.569077272731775,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.8741611146524719,
+        "topClearWeight": -1.763586876279244,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -1.0700739691907801,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.4410639912213376
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.492742773388655,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -1.0556339393403193,
+        "isolationPenalty": -1.5590789990477516,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.882669258588587,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.82691902080165,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -1.3449926368450562,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.5590789990477516,
+        "spaceCreationWeight": 0.5023675761021773
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.7744298309165073
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.33203447338496195,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.763586876279244,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.33203447338496195,
+        "cascadePotentialWeight": -0.8383718893387248,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.3829829731791451,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.9874831973320457,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -2,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21168517747284338,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.0773610174497554,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.7233565144796553
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.492742773388655,
+        "topClearWeight": -1.7931263049941357,
+        "bottomAvoidWeight": -1.0845363036422453,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.569077272731775,
+        "spaceCreationWeight": 0.49937850152173724
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -1.3449926368450562,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -1.0556339393403193,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.3829829731791451,
+        "cascadePotentialWeight": -1.3449926368450562,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1562287647050042,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.6807072940068271
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.22674885725134572,
+        "cascadePotentialWeight": -0.8383718893387248,
+        "topClearWeight": -1.7707401519890376,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -1.0404642747973687,
+        "isolationPenalty": -1.882669258588587,
+        "spaceCreationWeight": 0.4410639912213376
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -1.1695779103860884,
+        "colorDiversityWeight": -1.0556339393403193,
+        "isolationPenalty": -1.5590789990477516,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.18270779096670772,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.801470347309354,
+        "bottomAvoidWeight": -1.2607495479133548,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.9012490806051692,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.21353679766393796,
+        "cascadePotentialWeight": -0.7448629392335291,
+        "topClearWeight": -1.8247853942084167,
+        "bottomAvoidWeight": -0.8149137331502319,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.8519534670730566,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.20334666792075853,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -1.8137395765328466,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.5590789990477516,
+        "spaceCreationWeight": 0.5746856509233788
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.154743522103453,
+        "cascadePotentialWeight": -0.5363568859695949,
+        "topClearWeight": -2,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.9258322193750864,
+        "isolationPenalty": -1.7987359223791959,
+        "spaceCreationWeight": 0.5163637469212901
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    },
+    {
+      "strategy": {
+        "groupSizeWeight": 0.33203447338496195,
+        "cascadePotentialWeight": -0.8383718893387248,
+        "topClearWeight": -1.763586876279244,
+        "bottomAvoidWeight": -0.9815025031398219,
+        "colorDiversityWeight": -0.936871045035399,
+        "isolationPenalty": -1.690031579298415,
+        "spaceCreationWeight": 0.4410639912213376
+      },
+      "fitness": 0.0,
+      "bestScore": 0,
+      "gamesPlayed": 0
+    }
+  ]
+}
