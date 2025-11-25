@@ -1,0 +1,16 @@
+{
+  "score_priority": 103.12926198899987,
+  "min_blocks": 39.00569714813808,
+  "column_balance": 64.80086671686313,
+  "large_groups": 23.441699746097342,
+  "group_merging": 23.05682496205859,
+  "cascade_potential": 21.944657377845832,
+  "cascade_depth": 16.49629345270585,
+  "danger_reduction": 27.503533604208222,
+  "top_row_clearance": 30.879654774393337,
+  "survival_bonus": 9.756182481590919,
+  "space_creation": 11.83194075760792,
+  "color_balance": 17.885568344244838,
+  "isolated_penalty": -14.358272439778023,
+  "look_ahead_bonus": 0.240473138727304
+}

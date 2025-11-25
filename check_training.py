@@ -81,7 +81,7 @@ def main():
         print("      - Network may need more diverse experiences")
     
     print()
-    print("💡 Recommendations:")
+    print("Recommendations:")
     print("   1. If scores are low, try retraining with improved rewards:")
     print("      python train_neural.py --load model.pth --learning-rate 0.0005")
     print("   2. Or start fresh with better hyperparameters:")

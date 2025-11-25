@@ -146,6 +146,34 @@ class GameEngine:
         
         return connected
 
+    def _find_connected_in_grid(self, grid, row: int, col: int, color: str, visited: set = None) -> List[Tuple[int, int]]:
+        """Find all connected blocks of the same color in a given grid (helper for merge detection)"""
+        if visited is None:
+            visited = set()
+        
+        key = (row, col)
+        if key in visited:
+            return []
+        
+        # Check bounds
+        if row < 0 or row >= ROWS or col < 0 or col >= COLUMNS:
+            return []
+        
+        # Check if block exists and matches color
+        if grid[row][col] != color:
+            return []
+        
+        visited.add(key)
+        connected = [(row, col)]
+        
+        # Check adjacent blocks (not diagonal)
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        for dr, dc in directions:
+            new_row, new_col = row + dr, col + dc
+            connected.extend(self._find_connected_in_grid(grid, new_row, new_col, color, visited))
+        
+        return connected
+    
     def apply_gravity(self):
         """Drop blocks down after elimination"""
         for col in range(COLUMNS):
@@ -225,11 +253,40 @@ class GameEngine:
         else:
             balance_bonus = 0
         
+        # GROUP MERGING BONUS: Explicitly reward eliminating small separators that merge large groups
+        # This makes the neural network learn this strategy faster
+        group_merging_bonus = 0.0
+        if blocks_eliminated <= 3:  # Small elimination (1-3 blocks)
+            # Check if there's a large merged group of the same color after gravity
+            # This indicates we eliminated a small separator between two large groups
+            visited = set()
+            largest_merged_group = 0
+            
+            # Find the largest group of the same color as what we eliminated
+            for r in range(ROWS - 1):  # Don't check bottom row (can't click)
+                for c in range(COLUMNS):
+                    if self.grid[r][c] == color and (r, c) not in visited:
+                        merged_group = self._find_connected_in_grid(self.grid, r, c, color, visited)
+                        if len(merged_group) > largest_merged_group:
+                            largest_merged_group = len(merged_group)
+            
+            # If the merged group is significantly larger than what we eliminated, it's a good merge
+            # Example: eliminate 2 blocks, create a 15-block group = merged two ~7-block groups
+            if largest_merged_group >= 10 and largest_merged_group > blocks_eliminated * 3:
+                # Calculate bonus: larger merged group relative to eliminated blocks = better
+                # Scale: (merged_size - eliminated_size) / merged_size, capped at reasonable value
+                merge_ratio = (largest_merged_group - blocks_eliminated) / max(largest_merged_group, 1)
+                # Bonus scales with merge quality, but still much smaller than score reward
+                # This provides a clear signal without overshadowing the actual score
+                group_merging_bonus = merge_ratio * 25.0  # Moderate bonus (25-50 for good merges)
+                # Cap it so it doesn't exceed score reward for very small eliminations
+                group_merging_bonus = min(group_merging_bonus, 50.0)
+        
         # Game over penalty: Strong negative (but score reward still dominates)
         game_over_penalty = -500.0 if self.game_over else 0  # Stronger penalty
         
-        # Total reward: Score is 500x more important than bonuses
-        reward = score_reward + efficiency_bonus + large_group_bonus + balance_bonus + game_over_penalty
+        # Total reward: Score is primary, bonuses provide guidance
+        reward = score_reward + efficiency_bonus + large_group_bonus + balance_bonus + group_merging_bonus + game_over_penalty
         
         return {
             'success': True,
