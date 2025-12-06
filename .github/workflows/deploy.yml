@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+# This workflow replaces the default pages-build-deployment
+# Make sure GitHub Pages is set to use "GitHub Actions" as the source
+
 permissions:
   contents: read
   pages: write

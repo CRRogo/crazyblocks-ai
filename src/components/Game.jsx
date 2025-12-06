@@ -140,7 +140,10 @@ function Game() {
   useEffect(() => {
     const loadAIStrategy = async () => {
       try {
-        const response = await fetch('/crazyblocks-strategies.json')
+        // Use import.meta.env.BASE_URL to get the base path (works for both dev and production)
+        const baseUrl = import.meta.env.BASE_URL || '/'
+        const strategyPath = `${baseUrl}crazyblocks-strategies.json`.replace(/\/\//g, '/') // Remove double slashes
+        const response = await fetch(strategyPath)
         if (response.ok) {
           const data = await response.json()
           const eliteStrategies = data.eliteStrategies || []
@@ -149,6 +152,9 @@ function Game() {
             const agent = new GeneticAgent(bestStrategy)
             setAIAgent(agent)
           }
+        } else {
+          console.warn(`Could not load AI strategy: ${response.status} ${response.statusText}`)
+          setAIAgent(new GeneticAgent())
         }
       } catch (error) {
         console.warn('Could not load AI strategy:', error)
