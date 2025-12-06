@@ -7,15 +7,40 @@
       // Single Page Apps for GitHub Pages
       // https://github.com/rafgraph/spa-github-pages
       var pathSegmentsToKeep = 1;
+      var basePath = '/crazyblocks-ai';
 
       var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
-        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
-        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
-      );
+      var path = l.pathname;
+      
+      // If we're at the root, redirect to base path
+      if (path === '/' || path === '') {
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + basePath + '/');
+        return;
+      }
+      
+      // If we're at the base path without trailing slash, add it
+      if (path === basePath) {
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + basePath + '/');
+        return;
+      }
+      
+      // Handle SPA routing for other paths
+      var segments = path.split('/').filter(function(s) { return s; });
+      var baseSegments = basePath.split('/').filter(function(s) { return s; });
+      
+      // Remove base path segments
+      if (segments.length >= baseSegments.length) {
+        var pathAfterBase = '/' + segments.slice(baseSegments.length).join('/');
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          basePath + '/?/' + pathAfterBase.slice(1).replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+        );
+      } else {
+        // Fallback: just redirect to base
+        l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + basePath + '/');
+      }
     </script>
   </head>
   <body>
