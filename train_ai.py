@@ -5,6 +5,7 @@ Runs much faster than JavaScript version using NumPy and parallel processing
 """
 
 import json
+import os
 import random
 import time
 from typing import List, Dict, Tuple, Optional
@@ -1148,9 +1149,16 @@ class GeneticAlgorithm:
         with open(self.output_file, 'w') as f:
             json.dump(data, f, indent=2)
         
-        # Only print save message if it's a periodic save (not every generation)
-        if self.save_freq > 1:
-            print(f"Saved to {self.output_file}")
+        # Also copy to public folder for web interface
+        public_file = os.path.join('public', os.path.basename(self.output_file))
+        if os.path.exists('public'):
+            with open(public_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            if self.save_freq > 1:
+                print(f"Saved to {self.output_file} and synced to {public_file}")
+        else:
+            if self.save_freq > 1:
+                print(f"Saved to {self.output_file}")
 
     def get_stats(self) -> Dict:
         """Get current statistics"""

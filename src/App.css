@@ -9,41 +9,8 @@
   box-sizing: border-box;
 }
 
-.app-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 8px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-}
-
-.app-nav button {
-  padding: 8px 16px;
-  font-size: 0.9em;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: #ecf0f1;
-  color: #34495e;
-}
-
-.app-nav button:hover {
-  background: #bdc3c7;
-}
-
-.app-nav button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
 /* Make content area fill remaining space */
-.App > *:not(.app-nav) {
+.App > * {
   flex: 1;
   min-height: 0;
   width: 100%;

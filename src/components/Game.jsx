@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './Game.css'
+import { GeneticAgent } from '../rl/GeneticAgent'
+import { GameEngine } from '../game/GameEngine'
 
 const COLUMNS = 5
 const ROWS = 17
@@ -10,6 +12,10 @@ function Game() {
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showAISuggestion, setShowAISuggestion] = useState(false)
+  const [aiSuggestion, setAISuggestion] = useState(null)
+  const [aiAgent, setAIAgent] = useState(null)
+  const [waitingForNewRow, setWaitingForNewRow] = useState(false)
   const hasInitialized = useRef(false)
   const gameOverRef = useRef(false)
 
@@ -116,12 +122,73 @@ function Game() {
       
       setIsProcessing(false)
       
+      // Mark that we're waiting for new row
+      setWaitingForNewRow(true)
+      
       // Add new row after gravity is applied
       setTimeout(() => {
         addNewRow()
+        // Clear waiting flag after new row is added
+        setTimeout(() => {
+          setWaitingForNewRow(false)
+        }, 50)
       }, 100)
     }, 300)
   }, [gameOver, isProcessing, grid, findConnectedBlocks, addNewRow])
+
+  // Load AI agent strategy
+  useEffect(() => {
+    const loadAIStrategy = async () => {
+      try {
+        const response = await fetch('/crazyblocks-strategies.json')
+        if (response.ok) {
+          const data = await response.json()
+          const eliteStrategies = data.eliteStrategies || []
+          if (eliteStrategies.length > 0) {
+            const bestStrategy = eliteStrategies[0].strategy
+            const agent = new GeneticAgent(bestStrategy)
+            setAIAgent(agent)
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load AI strategy:', error)
+        // Create a default agent if loading fails
+        setAIAgent(new GeneticAgent())
+      }
+    }
+    loadAIStrategy()
+  }, [])
+
+  // Update AI suggestion when grid changes or toggle is enabled
+  useEffect(() => {
+    if (!showAISuggestion || !aiAgent || gameOver || isProcessing || waitingForNewRow) {
+      if (waitingForNewRow) {
+        // Don't clear suggestion while waiting, just don't update
+        return
+      }
+      setAISuggestion(null)
+      return
+    }
+
+    // Create a GameEngine instance that mirrors current state
+    const engine = new GameEngine()
+    engine.grid = grid.map(row => [...row])
+    engine.score = score
+    engine.gameOver = gameOver
+    engine.turnCount = 0 // Not critical for suggestion
+
+    try {
+      const suggestion = aiAgent.chooseAction(engine)
+      if (suggestion) {
+        setAISuggestion({ row: suggestion.row, col: suggestion.col })
+      } else {
+        setAISuggestion(null)
+      }
+    } catch (error) {
+      console.error('Error getting AI suggestion:', error)
+      setAISuggestion(null)
+    }
+  }, [grid, score, gameOver, isProcessing, showAISuggestion, aiAgent, waitingForNewRow])
 
   // Start the game with initial rows
   useEffect(() => {
@@ -165,31 +232,67 @@ function Game() {
 
   return (
     <div className="game-container">
-      <div className="game-header">
-        <h1>Crazy Blocks</h1>
-        <div className="score">Score: {score}</div>
-      </div>
-      
-      <div className="grid-container">
-        <div className="grid">
-          {grid.map((row, rowIndex) =>
-            row.map((block, colIndex) => {
-              const isBottomRow = rowIndex === ROWS - 1
-              return (
-                <div
-                  key={`${rowIndex}-${colIndex}`}
-                  className={`block ${block ? 'filled' : 'empty'} ${isBottomRow ? 'bottom-row' : ''}`}
-                  style={{ backgroundColor: block || '#2c3e50' }}
-                  onClick={() => handleBlockClick(rowIndex, colIndex)}
-                />
-              )
-            })
+      <div className="game-content">
+        <div className="game-board-section">
+          <div className="grid-container">
+            <div className="grid">
+              {grid.map((row, rowIndex) =>
+                row.map((block, colIndex) => {
+                  const isBottomRow = rowIndex === ROWS - 1
+                  const isAISuggestion = aiSuggestion && 
+                    aiSuggestion.row === rowIndex && 
+                    aiSuggestion.col === colIndex
+                  return (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      className={`block ${block ? 'filled' : 'empty'} ${isBottomRow ? 'bottom-row' : ''} ${isAISuggestion ? 'ai-suggestion' : ''}`}
+                      style={{ backgroundColor: block || '#2c3e50' }}
+                      onClick={() => handleBlockClick(rowIndex, colIndex)}
+                    />
+                  )
+                })
+              )}
+            </div>
+          </div>
+          
+          <div className={`instructions ${gameOver ? 'hidden' : ''}`}>
+            Click blocks to eliminate connected groups of the same color!
+          </div>
+        </div>
+        
+        <div className="control-panel">
+          <h1 className="game-title">Crazy Blocks</h1>
+          <div className="score">Score: {score}</div>
+          <div className="control-divider"></div>
+          <h3>AI Assistant</h3>
+          <div className="control-group">
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={showAISuggestion}
+                onChange={(e) => setShowAISuggestion(e.target.checked)}
+                disabled={!aiAgent || gameOver}
+              />
+              <span className="toggle-text">Show AI Suggestion</span>
+            </label>
+          </div>
+          {showAISuggestion && aiSuggestion && (
+            <div className="ai-info">
+              <p>AI suggests clicking:</p>
+              <p className="ai-coords">Row {aiSuggestion.row + 1}, Column {aiSuggestion.col + 1}</p>
+            </div>
+          )}
+          {showAISuggestion && !aiSuggestion && (
+            <div className="ai-info">
+              <p>No valid moves available</p>
+            </div>
+          )}
+          {!aiAgent && (
+            <div className="ai-info">
+              <p className="ai-warning">AI strategy not loaded</p>
+            </div>
           )}
         </div>
-      </div>
-      
-      <div className={`instructions ${gameOver ? 'hidden' : ''}`}>
-        Click blocks to eliminate connected groups of the same color!
       </div>
       
       <div className={`game-over ${gameOver ? 'visible' : 'hidden'}`}>
