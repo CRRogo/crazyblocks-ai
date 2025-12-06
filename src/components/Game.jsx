@@ -168,14 +168,6 @@ function Game() {
       <div className="game-header">
         <h1>Crazy Blocks</h1>
         <div className="score">Score: {score}</div>
-        {gameOver && (
-          <div className="game-over">
-            <h2>Game Over!</h2>
-            <button onClick={handleRestart} className="restart-button">
-              Play Again
-            </button>
-          </div>
-        )}
       </div>
       
       <div className="grid-container">
@@ -196,11 +188,16 @@ function Game() {
         </div>
       </div>
       
-      {!gameOver && (
-        <div className="instructions">
-          Click blocks to eliminate connected groups of the same color!
-        </div>
-      )}
+      <div className={`instructions ${gameOver ? 'hidden' : ''}`}>
+        Click blocks to eliminate connected groups of the same color!
+      </div>
+      
+      <div className={`game-over ${gameOver ? 'visible' : 'hidden'}`}>
+        <h2>Game Over!</h2>
+        <button onClick={handleRestart} className="restart-button">
+          Play Again
+        </button>
+      </div>
     </div>
   )
 }

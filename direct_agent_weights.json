@@ -1,16 +1,23 @@
 {
-  "score_priority": 103.12926198899987,
-  "min_blocks": 39.00569714813808,
-  "column_balance": 64.80086671686313,
-  "large_groups": 23.441699746097342,
-  "group_merging": 23.05682496205859,
-  "cascade_potential": 21.944657377845832,
-  "cascade_depth": 16.49629345270585,
-  "danger_reduction": 27.503533604208222,
-  "top_row_clearance": 30.879654774393337,
-  "survival_bonus": 9.756182481590919,
-  "space_creation": 11.83194075760792,
-  "color_balance": 17.885568344244838,
-  "isolated_penalty": -14.358272439778023,
-  "look_ahead_bonus": 0.240473138727304
+  "generation": 85478,
+  "best_fitness": 338.6666666666667,
+  "best_score": 196,
+  "best_strategy": {
+    "score_priority": 140.06902679307643,
+    "min_blocks": 24.405625656711525,
+    "column_balance": 32.19617501172016,
+    "large_groups": 16.41517265808956,
+    "group_merging": 28.52216028400494,
+    "cascade_potential": 25.862992921456293,
+    "cascade_depth": 11.8077277031912,
+    "danger_reduction": 27.32748801783023,
+    "top_row_clearance": 27.10565073970296,
+    "survival_bonus": 9.39099221147437,
+    "space_creation": 11.781627986164903,
+    "color_balance": 16.40171576939661,
+    "isolated_penalty": -8.269838395477393,
+    "look_ahead_bonus": 0.0,
+    "bottom_touching_penalty": -26.434780727962153,
+    "isolated_group_bonus": 32.823271002568376
+  }
 }

@@ -1,28 +1,35 @@
 .training-view {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 30px;
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
+  border-radius: 15px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .training-view h2 {
   color: #2c3e50;
-  margin-bottom: 20px;
+  margin: 0 0 10px 0;
   text-align: center;
+  font-size: 1.5em;
 }
 
 .method-selector {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .method-selector button {
-  padding: 10px 20px;
-  font-size: 1em;
+  padding: 8px 16px;
+  font-size: 0.9em;
   font-weight: bold;
   border: none;
   border-radius: 8px;
@@ -50,11 +57,12 @@
 .training-controls {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 30px;
-  padding: 20px;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
   background: rgba(44, 62, 80, 0.05);
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .control-group {
@@ -114,15 +122,17 @@
 }
 
 .training-stats {
-  margin-top: 30px;
-  padding: 20px;
+  margin-top: 10px;
+  padding: 10px;
   background: rgba(44, 62, 80, 0.05);
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .training-stats h3 {
   color: #2c3e50;
-  margin-bottom: 15px;
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
 }
 
 .stats-grid {
@@ -153,10 +163,11 @@
 }
 
 .training-progress {
-  margin-top: 30px;
-  padding: 20px;
+  margin-top: 10px;
+  padding: 10px;
   background: rgba(44, 62, 80, 0.05);
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .progress-bar {
@@ -182,11 +193,12 @@
 }
 
 .info-box {
-  margin-top: 30px;
-  padding: 20px;
+  margin-top: 10px;
+  padding: 10px;
   background: rgba(52, 152, 219, 0.1);
   border-radius: 10px;
   border-left: 4px solid #3498db;
+  flex-shrink: 0;
 }
 
 .info-box h4 {

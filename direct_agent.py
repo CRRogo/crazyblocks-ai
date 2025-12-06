@@ -47,6 +47,10 @@ class DirectAgent:
                 'color_balance': 12.0,       # Balance colors across board
                 'isolated_penalty': -10.0,   # Penalty for leaving isolated blocks
                 
+                # NEW: Bottom-touching avoidance / Isolated group preference
+                'bottom_touching_penalty': -35.0,  # Avoid clearing groups touching bottom (they can grow!)
+                'isolated_group_bonus': 30.0,     # Reward clearing large isolated groups (safe to eliminate)
+                
             # Look-ahead disabled (new blocks are random)
             'look_ahead_bonus': 0.0,     # Not used
             }
@@ -183,8 +187,8 @@ class DirectAgent:
         top_clearance = (top_rows_before - top_rows_after) / (3 * COLUMNS)
         score += self.weights['top_row_clearance'] * top_clearance * 10
         
-        # 9. CASCADE DEPTH (simulate actual cascades)
-        cascade_depth = self._simulate_cascade_depth(temp_grid_after, 0, 3)
+        # 9. CASCADE DEPTH (simulate actual cascades) - OPTIMIZED: limit depth for speed
+        cascade_depth = self._simulate_cascade_depth(temp_grid_after, 0, 2)  # Reduced from 3 to 2
         score += self.weights['cascade_depth'] * (cascade_depth / 10.0)
         
         # 10. SPACE CREATION (empty spaces for future moves)
@@ -233,7 +237,34 @@ class DirectAgent:
         
         score += self.weights['isolated_penalty'] * (isolated_count / (ROWS * COLUMNS)) * 10
         
-        # 13. LOOK-AHEAD (disabled - new blocks are random, so look-ahead isn't useful)
+        # 13. BOTTOM-TOUCHING AVOIDANCE / ISOLATED GROUP PREFERENCE (your new strategy!)
+        # Check if this group touches the bottom row (ROWS - 1)
+        # Bottom row is ROWS - 1 (can't click it, but blocks can be there)
+        # We check if any block in the group is in the bottom row
+        touches_bottom = any(r == ROWS - 1 for r, c in connected_blocks)
+        
+        if touches_bottom:
+            # Group touches bottom - AVOID clearing it (it can grow when new row is added)
+            # Penalty scales with group size (larger groups = bigger potential loss)
+            # But allow small groups to be cleared (they're not worth saving)
+            if group_size >= 5:
+                # Strong penalty for clearing large groups that touch bottom
+                penalty = (group_size / 10.0)  # Scale penalty with size
+                score += self.weights['bottom_touching_penalty'] * penalty * 2.0
+            # Small groups (< 5) can still be cleared (not worth the penalty)
+        else:
+            # Group is isolated (doesn't touch bottom) - SAFE to eliminate
+            # Reward clearing large isolated groups (they won't grow)
+            if group_size >= 8:
+                # Strong bonus for large isolated groups
+                bonus = (group_size / 15.0)  # Scale bonus with size
+                score += self.weights['isolated_group_bonus'] * bonus * 2.0
+            elif group_size >= 5:
+                # Moderate bonus for medium isolated groups
+                bonus = (group_size / 10.0)
+                score += self.weights['isolated_group_bonus'] * bonus
+        
+        # 14. LOOK-AHEAD (disabled - new blocks are random, so look-ahead isn't useful)
         # We can't predict what blocks will appear, so evaluating future moves doesn't help
         if False:  # Permanently disabled
             # Simulate this move properly
@@ -342,7 +373,8 @@ class DirectAgent:
                     promising_actions.append((row, col))
         
         # If we have promising actions, use those; otherwise use all
-        actions_to_evaluate = promising_actions if promising_actions else valid_actions[:20]  # Limit for speed
+        # OPTIMIZED: Limit actions evaluated for speed (was 20, now 15)
+        actions_to_evaluate = promising_actions if promising_actions else valid_actions[:15]
         
         best_action = None
         best_score = float('-inf')

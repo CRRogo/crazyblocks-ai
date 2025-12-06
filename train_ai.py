@@ -41,6 +41,14 @@ class Strategy:
     columnBalanceWeight: float = 0.0  # NEW: Column height balance (keep columns similar height)
     groupMergingWeight: float = 0.0  # NEW: Group merging potential (reward small eliminations that merge large groups)
     averageBlocksWeight: float = 0.0  # NEW: Average blocks per turn (reward 5+ blocks eliminated)
+    maxColumnReductionWeight: float = 0.0  # NEW: Reward moves that reduce the highest column (prevents game over)
+    smallClearEnablerWeight: float = 0.0  # NEW: Reward small clears that enable future large clears
+    bottomTouchingAvoidanceWeight: float = 0.0  # NEW: Avoid clearing groups touching bottom (they can grow)
+    colorConcentrationWeight: float = 0.0  # NEW: Reward clearing colors that will concentrate remaining colors
+    topRowAvoidanceWeight: float = 0.0  # NEW: Avoid clearing blocks at very top - clear lower for falling groups
+    columnIsolationPenaltyWeight: float = 0.0  # NEW: Penalize isolated tall columns (less likely to match)
+    criticalColumnFocusWeight: float = 0.0  # NEW: MUST focus on columns right below max (about to lose)
+    sideConnectionRequirementWeight: float = 0.0  # NEW: Avoid clearing blocks with no side connections
 
     @classmethod
     def random(cls):
@@ -62,7 +70,15 @@ class Strategy:
             largeGroupBonusWeight=random.uniform(-1, 1),
             columnBalanceWeight=random.uniform(-1, 1),
             groupMergingWeight=random.uniform(-1, 1),
-            averageBlocksWeight=random.uniform(-1, 1)
+            averageBlocksWeight=random.uniform(-1, 1),
+            maxColumnReductionWeight=random.uniform(-1, 1),
+            smallClearEnablerWeight=random.uniform(-1, 1),
+            bottomTouchingAvoidanceWeight=random.uniform(-1, 1),
+            colorConcentrationWeight=random.uniform(-1, 1),
+            topRowAvoidanceWeight=random.uniform(-1, 1),
+            columnIsolationPenaltyWeight=random.uniform(-1, 1),
+            criticalColumnFocusWeight=random.uniform(-1, 1),
+            sideConnectionRequirementWeight=random.uniform(-1, 1)
         )
 
     def mutate(self, mutation_rate: float = 0.1):
@@ -471,9 +487,9 @@ class GeneticAgent:
         score += self.strategy.topDensityWeight * top_density_reduction
         
         # NEW: Multi-cascade depth (simplified - count potential cascades)
-        # Only calculate if weight is significant, but use depth 2 for speed
-        if abs(self.strategy.multiCascadeWeight) > 0.05:  # Lower threshold
-            cascade_depth = self._calculate_cascade_depth(temp_grid_after, 0, 2)
+        # OPTIMIZED: Only calculate if weight is significant, use depth 1 for speed
+        if abs(self.strategy.multiCascadeWeight) > 0.1:  # Only if weight is significant
+            cascade_depth = self._calculate_cascade_depth(temp_grid_after, 0, 1)  # Reduced from 2 to 1
             score += self.strategy.multiCascadeWeight * (cascade_depth / 10)
         
         # NEW: Column height balance - penalize moves that create large height differences
@@ -538,6 +554,168 @@ class GeneticAgent:
             # Penalty for not meeting the requirement (scales with how far below 5)
             deficit = (5 - group_size) / 5.0  # 0.0 to 0.8 (for 1-4 blocks)
             score += self.strategy.averageBlocksWeight * (-deficit * 10)  # Strong negative signal
+        
+        # NEW STRATEGY 1: Max column reduction (prevents game over)
+        # Reward moves that reduce the highest column - this is critical for survival
+        max_height_before = max(column_heights_before) if column_heights_before else 0
+        max_height_after = max(column_heights_after) if column_heights_after else 0
+        max_column_reduction = (max_height_before - max_height_after) / ROWS  # Normalized
+        # Strong reward - preventing game over is critical
+        score += self.strategy.maxColumnReductionWeight * max_column_reduction * 20
+        
+        # NEW STRATEGY 2: Small clear enabler (reward small clears that enable large clears)
+        # Check if a small clear (1-4 blocks) creates opportunities for large clears
+        if group_size <= 4:
+            # After this small clear, check for potential large groups
+            # Count how many large groups (8+ blocks) exist after the move
+            visited = set()
+            large_groups_after = 0
+            for r in range(ROWS - 1):
+                for c in range(COLUMNS):
+                    if temp_grid_after[r][c] is not None and (r, c) not in visited:
+                        block_color = temp_grid_after[r][c]
+                        group = self._find_connected_in_grid(temp_grid_after, r, c, block_color, visited)
+                        if len(group) >= 8:  # Large group
+                            large_groups_after += 1
+            
+            # Reward if small clear enables large groups
+            if large_groups_after > 0:
+                enabler_bonus = min(large_groups_after / 3.0, 1.0)  # Normalized, capped
+                score += self.strategy.smallClearEnablerWeight * enabler_bonus * 15
+        
+        # NEW STRATEGY 3: Bottom-touching avoidance (don't clear groups touching bottom)
+        # Check if this group touches the bottom row (ROWS - 1)
+        touches_bottom = any(r == ROWS - 1 for r, c in connected_blocks)
+        if touches_bottom:
+            # Group touches bottom - avoid clearing it (it can grow when new row is added)
+            # Penalty scales with group size (larger groups = bigger potential loss)
+            if group_size >= 5:
+                # Strong penalty for clearing large groups that touch bottom
+                penalty = (group_size / 15.0)  # Normalized
+                score += self.strategy.bottomTouchingAvoidanceWeight * (-penalty * 20)
+            # Small groups (< 5) can still be cleared (not worth the penalty)
+        else:
+            # Group is isolated (doesn't touch bottom) - safe to eliminate
+            # Small bonus for isolated groups (they won't grow)
+            if group_size >= 5:
+                isolation_bonus = (group_size / 20.0)  # Normalized
+                score += self.strategy.bottomTouchingAvoidanceWeight * isolation_bonus * 5
+        
+        # NEW STRATEGY 4: Color concentration (reward clearing colors that concentrate remaining colors)
+        # If we clear one color, the remaining colors become more concentrated
+        # This makes future large clears more likely
+        
+        # Count colors before move (sample top rows for speed)
+        color_counts_before = {c: 0 for c in COLORS}
+        color_counts_after = {c: 0 for c in COLORS}
+        sample_rows = min(12, ROWS)  # Sample top 12 rows
+        
+        for r in range(sample_rows):
+            for c in range(COLUMNS):
+                before_color = game_engine.grid[r][c]
+                after_color = temp_grid_after[r][c]
+                if before_color in color_counts_before:
+                    color_counts_before[before_color] += 1
+                if after_color in color_counts_after:
+                    color_counts_after[after_color] += 1
+        
+        # Calculate concentration (variance) - higher variance = more concentrated
+        def calculate_concentration(counts):
+            values = [v for v in counts.values() if v > 0]
+            if not values or len(values) < 2:
+                return 0.0
+            avg = sum(values) / len(values)
+            variance = sum((v - avg) ** 2 for v in values) / len(values)
+            return variance
+        
+        concentration_before = calculate_concentration(color_counts_before)
+        concentration_after = calculate_concentration(color_counts_after)
+        concentration_increase = (concentration_after - concentration_before) / 100.0  # Normalized
+        
+        # Reward moves that increase color concentration (makes large clears more likely)
+        score += self.strategy.colorConcentrationWeight * concentration_increase * 10
+        
+        # NEW STRATEGY 5: Top row avoidance (avoid clearing blocks at very top)
+        # Clear lower so larger groups may fall into place
+        # Top 2 rows (rows 0-1) are the "very top"
+        if row <= 1:
+            # Strong penalty for clearing at very top
+            top_penalty = (2 - row) / 2.0  # Row 0 = 1.0, Row 1 = 0.5
+            score += self.strategy.topRowAvoidanceWeight * (-top_penalty * 15)
+        else:
+            # Small bonus for clearing lower (allows groups to fall)
+            lower_bonus = (row / ROWS) * 0.3  # Normalized
+            score += self.strategy.topRowAvoidanceWeight * lower_bonus * 5
+        
+        # NEW STRATEGY 6: Column isolation penalty (isolated tall columns are bad)
+        # Calculate column heights after move
+        column_heights_after = []
+        for c in range(COLUMNS):
+            height = sum(1 for r in range(ROWS) if temp_grid_after[r][c] is not None)
+            column_heights_after.append(height)
+        
+        if column_heights_after:
+            avg_height = sum(column_heights_after) / len(column_heights_after)
+            clicked_col_height = column_heights_after[col]
+            
+            # Check if clicked column is isolated and taller than neighbors
+            neighbor_heights = []
+            if col > 0:
+                neighbor_heights.append(column_heights_after[col - 1])
+            if col < COLUMNS - 1:
+                neighbor_heights.append(column_heights_after[col + 1])
+            
+            if neighbor_heights:
+                avg_neighbor_height = sum(neighbor_heights) / len(neighbor_heights)
+                # If this column is significantly taller than neighbors, it's isolated
+                if clicked_col_height > avg_neighbor_height + 2:
+                    isolation_penalty = (clicked_col_height - avg_neighbor_height) / ROWS
+                    score += self.strategy.columnIsolationPenaltyWeight * (-isolation_penalty * 20)
+        
+        # NEW STRATEGY 7: Critical column focus (MUST focus on columns right below max)
+        # If any column is at ROWS-1 (one below max), we're about to lose
+        # MUST focus on reducing that column
+        max_height = max(column_heights_after) if column_heights_after else 0
+        critical_threshold = ROWS - 1  # One below max (ROWS is max)
+        
+        if max_height >= critical_threshold:
+            # We're in critical danger - MUST focus on the tallest column
+            clicked_col_height = column_heights_after[col] if column_heights_after else 0
+            if clicked_col_height >= critical_threshold:
+                # This move targets a critical column - HUGE reward
+                critical_bonus = 1.0 + (clicked_col_height - critical_threshold) * 0.5
+                score += self.strategy.criticalColumnFocusWeight * critical_bonus * 50  # VERY strong
+            else:
+                # Not targeting critical column - penalty
+                score += self.strategy.criticalColumnFocusWeight * (-0.5 * 30)  # Strong penalty
+        
+        # NEW STRATEGY 8: Side connection requirement (avoid blocks with no side connections)
+        # Blocks with no side connections are less flexible - focus lower for more possibilities
+        has_left_connection = False
+        has_right_connection = False
+        
+        # Check if any block in the group has side connections
+        for r, c in connected_blocks:
+            # Check left
+            if c > 0:
+                left_color = game_engine.grid[r][c - 1]
+                if left_color is not None and left_color != color:
+                    has_left_connection = True
+            # Check right
+            if c < COLUMNS - 1:
+                right_color = game_engine.grid[r][c + 1]
+                if right_color is not None and right_color != color:
+                    has_right_connection = True
+        
+        if not (has_left_connection or has_right_connection):
+            # No side connections - this is less flexible, penalize it
+            # Penalty is stronger for larger groups (waste of opportunity)
+            side_penalty = (group_size / 15.0)  # Normalized
+            score += self.strategy.sideConnectionRequirementWeight * (-side_penalty * 15)
+        else:
+            # Has side connections - bonus (more flexible, better for column balance)
+            side_bonus = 0.3 if (has_left_connection and has_right_connection) else 0.15
+            score += self.strategy.sideConnectionRequirementWeight * side_bonus * 5
         
         return score
     
@@ -616,8 +794,8 @@ class GeneticAgent:
             if neighbor_count > 0:
                 promising_actions.append((row, col))
         
-        # Limit to 15 actions for speed
-        actions_to_evaluate = (promising_actions if promising_actions else valid_actions[:10])[:15]
+        # OPTIMIZED: Limit to 12 actions for speed (was 15)
+        actions_to_evaluate = (promising_actions if promising_actions else valid_actions[:10])[:12]
         
         best_action = actions_to_evaluate[0]
         best_score = float('-inf')
@@ -701,7 +879,8 @@ class GeneticAlgorithm:
         elite_size: int = 7,  # Increased for better preservation
         games_per_evaluation: int = 5,  # Increased for better fitness estimates
         output_file: str = 'crazyblocks-strategies.json',
-        use_parallel: bool = True
+        use_parallel: bool = True,
+        save_freq: int = 5  # Save every N generations (for speed)
     ):
         self.population_size = population_size
         self.mutation_rate = mutation_rate
@@ -710,6 +889,10 @@ class GeneticAlgorithm:
         self.games_per_evaluation = games_per_evaluation
         self.output_file = output_file
         self.use_parallel = use_parallel and mp.cpu_count() > 1
+        self.save_freq = save_freq
+        self.generations_since_save = 0
+        self.exploration_threshold = 500.0  # Average score threshold for exploration
+        self.exploration_boost = 1.0  # Multiplier for mutation/diversity when exploring
         
         self.population: List[GeneticAgent] = []
         self.generation = 0
@@ -751,7 +934,15 @@ class GeneticAlgorithm:
                     'largeGroupBonusWeight': 0.0,
                     'columnBalanceWeight': 0.0,
                     'groupMergingWeight': 0.0,
-                    'averageBlocksWeight': 0.0
+                    'averageBlocksWeight': 0.0,
+                    'maxColumnReductionWeight': 0.0,
+                    'smallClearEnablerWeight': 0.0,
+                    'bottomTouchingAvoidanceWeight': 0.0,
+                    'colorConcentrationWeight': 0.0,
+                    'topRowAvoidanceWeight': 0.0,
+                    'columnIsolationPenaltyWeight': 0.0,
+                    'criticalColumnFocusWeight': 0.0,
+                    'sideConnectionRequirementWeight': 0.0
                 }
                 for key, default_val in defaults.items():
                     if key not in strategy_dict:
@@ -772,11 +963,11 @@ class GeneticAlgorithm:
                 self.population = self.population[:self.population_size]
             
             self.generation = data.get('generation', 0)
-            print(f"✅ Loaded {len(self.population)} strategies from generation {self.generation}")
+            print(f"Loaded {len(self.population)} strategies from generation {self.generation}")
             return True
             
         except Exception as e:
-            print(f"⚠️  Failed to load: {e}")
+            print(f"Failed to load: {e}")
             return False
 
     def evaluate_population(self):
@@ -839,34 +1030,56 @@ class GeneticAlgorithm:
         tournament = random.sample(self.population, min(tournament_size, len(self.population)))
         return max(tournament, key=lambda a: a.fitness)
 
-    def create_next_generation(self):
-        """Create next generation"""
+    def create_next_generation(self, avg_fitness: float = 0.0):
+        """Create next generation with adaptive exploration"""
+        # Calculate exploration boost based on average fitness
+        if avg_fitness < self.exploration_threshold:
+            # Below threshold - increase exploration
+            # Boost scales from 1.0 (at threshold) to 3.0 (at 0)
+            fitness_ratio = max(0, avg_fitness / self.exploration_threshold)
+            self.exploration_boost = 1.0 + (1.0 - fitness_ratio) * 2.0  # 1.0 to 3.0
+        else:
+            # Above threshold - normal exploration
+            self.exploration_boost = 1.0
+        
         new_population = []
         
-        # Keep elite (top performers)
-        for i in range(self.elite_size):
+        # Keep elite (fewer if exploring heavily)
+        elite_to_keep = self.elite_size
+        if self.exploration_boost > 1.5:
+            # Reduce elite when heavily exploring
+            elite_to_keep = max(2, int(self.elite_size * 0.5))
+        
+        for i in range(elite_to_keep):
             elite = GeneticAgent(Strategy(**asdict(self.population[i].strategy)))
             elite.fitness = self.population[i].fitness
             elite.best_score = self.population[i].best_score
             new_population.append(elite)
         
-        # Add some random diversity (5% of population)
-        num_random = max(1, int(self.population_size * 0.05))
+        # Add random diversity (more if exploring)
+        base_diversity = 0.05
+        if self.exploration_boost > 1.5:
+            # Increase diversity when exploring
+            base_diversity = 0.15  # 15% random diversity
+        num_random = max(1, int(self.population_size * base_diversity))
         for _ in range(num_random):
             new_population.append(GeneticAgent())
         
-        # Fill rest with crossover and mutation
+        # Fill rest with crossover and mutation (with exploration boost)
+        effective_mutation_rate = self.mutation_rate * self.exploration_boost
+        effective_mutation_rate = min(effective_mutation_rate, 0.5)  # Cap at 50%
+        
         while len(new_population) < self.population_size:
             if random.random() < self.crossover_rate and len(new_population) < self.population_size - 1:
                 # Crossover
                 parent1 = self.tournament_selection()
                 parent2 = self.tournament_selection()
                 child_strategy = parent1.strategy.crossover(parent2.strategy)
-                new_population.append(GeneticAgent(child_strategy.mutate(self.mutation_rate)))
+                new_population.append(GeneticAgent(child_strategy.mutate(effective_mutation_rate)))
             else:
                 # Mutation only
                 parent = self.tournament_selection()
-                new_population.append(GeneticAgent(parent.strategy.mutate(self.mutation_rate)))
+                new_population.append(GeneticAgent(parent.strategy.mutate(effective_mutation_rate)))
         
         self.population = new_population
         self.generation += 1
@@ -881,15 +1094,24 @@ class GeneticAlgorithm:
         
         elapsed = time.time() - start_time
         
-        self.create_next_generation()
-        self.save_population()
+        # Pass avg_fitness to create_next_generation for adaptive exploration
+        self.create_next_generation(avg_fitness)
+        
+        # Save periodically (not every generation for speed)
+        self.generations_since_save += 1
+        should_save = (self.generations_since_save >= self.save_freq)
+        if should_save:
+            self.save_population()
+            self.generations_since_save = 0
         
         return {
             'generation': self.generation - 1,
             'best_fitness': best_agent.fitness,
             'best_score': best_agent.best_score,
             'avg_fitness': avg_fitness,
-            'elapsed_time': elapsed
+            'elapsed_time': elapsed,
+            'saved': should_save,
+            'exploration_boost': self.exploration_boost
         }
 
     def save_population(self):
@@ -926,7 +1148,9 @@ class GeneticAlgorithm:
         with open(self.output_file, 'w') as f:
             json.dump(data, f, indent=2)
         
-        print(f"💾 Saved to {self.output_file}")
+        # Only print save message if it's a periodic save (not every generation)
+        if self.save_freq > 1:
+            print(f"Saved to {self.output_file}")
 
     def get_stats(self) -> Dict:
         """Get current statistics"""
@@ -955,15 +1179,17 @@ def main():
     parser = argparse.ArgumentParser(description='Train Crazy Blocks AI using Genetic Algorithm')
     parser.add_argument('--generations', type=int, default=None, help='Number of generations to train (default: unlimited - runs until Ctrl+C)')
     parser.add_argument('--population', type=int, default=50, help='Population size')
-    parser.add_argument('--games', type=int, default=4, help='Games per evaluation (balance between speed and accuracy)')
+    parser.add_argument('--games', type=int, default=3, help='Games per evaluation (fewer = faster, default: 3 for speed)')
     parser.add_argument('--output', type=str, default='crazyblocks-strategies.json', help='Output JSON file')
     parser.add_argument('--no-parallel', action='store_true', help='Disable parallel processing')
-    parser.add_argument('--mutation-rate', type=float, default=0.15, help='Mutation rate (increased from 0.1 for more diversity)')
+    parser.add_argument('--mutation-rate', type=float, default=0.15, help='Mutation rate')
     parser.add_argument('--crossover-rate', type=float, default=0.7, help='Crossover rate')
+    parser.add_argument('--save-freq', type=int, default=5, help='Save every N generations (default: 5, set to 1 for every generation)')
+    parser.add_argument('--exploration-threshold', type=float, default=500.0, help='Average score threshold - explores heavily below this (default: 500)')
     
     args = parser.parse_args()
     
-    print("🧬 Crazy Blocks AI Trainer (Python)")
+    print("Crazy Blocks AI Trainer (Python)")
     print("=" * 50)
     
     ga = GeneticAlgorithm(
@@ -972,31 +1198,34 @@ def main():
         crossover_rate=args.crossover_rate,
         games_per_evaluation=args.games,
         output_file=args.output,
-        use_parallel=not args.no_parallel
+        use_parallel=not args.no_parallel,
+        save_freq=args.save_freq
     )
+    # Set exploration threshold
+    ga.exploration_threshold = args.exploration_threshold
     
     start_generation = ga.generation
     
     if start_generation > 0:
-        print(f"📂 Resuming from generation {start_generation}")
+        print(f"Resuming from generation {start_generation}")
         best_agent = max(ga.population, key=lambda a: a.fitness)
-        print(f"🏆 Previous best: Score {best_agent.best_score}, Fitness {best_agent.fitness:.2f}")
+        print(f"Previous best: Score {best_agent.best_score}, Fitness {best_agent.fitness:.2f}")
     else:
-        print(f"🆕 Starting fresh training")
+        print(f"Starting fresh training")
     
     if args.generations:
         target_generation = start_generation + args.generations
-        print(f"🎯 Will train {args.generations} more generations")
-        print(f"🎯 Target: generation {target_generation} (currently at {start_generation})")
+        print(f"Will train {args.generations} more generations")
+        print(f"Target: generation {target_generation} (currently at {start_generation})")
     else:
-        print(f"🎯 Training continuously (Press Ctrl+C to stop)")
+        print(f"Training continuously (Press Ctrl+C to stop)")
         target_generation = None
     
-    print(f"📊 Population: {args.population}, Games per eval: {args.games}")
-    print(f"⚡ Parallel processing: {'Enabled' if ga.use_parallel else 'Disabled'}")
-    print(f"💾 Auto-saving after each generation")
+    print(f"Population: {args.population}, Games per eval: {args.games}")
+    print(f"Parallel processing: {'Enabled' if ga.use_parallel else 'Disabled'}")
+    print(f"Saving every {args.save_freq} generation(s)")
     if target_generation:
-        print(f"📈 Will train from generation {start_generation} to {target_generation}")
+        print(f"Will train from generation {start_generation} to {target_generation}")
     print("=" * 50)
     print()
     
@@ -1009,7 +1238,7 @@ def main():
             # We check BEFORE running because run_generation increments the counter
             if target_generation is not None:
                 if ga.generation >= target_generation:
-                    print(f"\n✅ Reached target generation {target_generation}")
+                    print(f"\nReached target generation {target_generation}")
                     break
             
             # Run one generation (this increments ga.generation)
@@ -1017,38 +1246,42 @@ def main():
             current_gen = result['generation']
             generations_trained += 1
             
+            save_indicator = " [SAVED]" if result.get('saved', False) else ""
+            exploration_indicator = ""
+            if result['avg_fitness'] < args.exploration_threshold:
+                boost = result.get('exploration_boost', 1.0)
+                exploration_indicator = f" [EXPLORING x{boost:.1f}]"
+            
             print(
                 f"Gen {current_gen:4d} | "
                 f"Best: {result['best_score']:6.0f} "
                 f"(Fitness: {result['best_fitness']:7.2f}) | "
                 f"Avg: {result['avg_fitness']:7.2f} | "
-                f"Time: {result['elapsed_time']:5.2f}s"
+                f"Time: {result['elapsed_time']:5.2f}s{exploration_indicator}{save_indicator}"
             )
-            
-            # Progress is automatically saved after each generation in run_generation()
             
             # If no target, continue forever. If target specified, loop will break when reached.
             
     except KeyboardInterrupt:
-        print("\n\n⚠️  Training interrupted by user (Ctrl+C)")
-        # Save one more time to be safe (though it's already saved)
+        print("\n\nTraining interrupted by user (Ctrl+C)")
+        # Save one more time to be safe
         ga.save_population()
-        print("💾 Progress saved!")
+        print("Progress saved!")
     
     total_time = time.time() - start_time
     stats = ga.get_stats()
     
     print("=" * 50)
-    print("✅ Training stopped!")
-    print(f"📈 Final Generation: {stats['generation']}")
-    print(f"🏆 Best Score: {stats['best_score']}")
-    print(f"📊 Best Fitness: {stats['best_fitness']:.2f}")
-    print(f"⏱️  Total Time: {total_time:.2f}s ({total_time/60:.2f} minutes)")
-    print(f"💾 Saved to: {args.output}")
+    print("Training stopped!")
+    print(f"Final Generation: {stats['generation']}")
+    print(f"Best Score: {stats['best_score']}")
+    print(f"Best Fitness: {stats['best_fitness']:.2f}")
+    print(f"Total Time: {total_time:.2f}s ({total_time/60:.2f} minutes)")
+    print(f"Saved to: {args.output}")
     if start_generation > 0:
-        print(f"📊 Trained {generations_trained} new generations (from {start_generation} to {stats['generation']})")
-    print("\n💡 You can import this file into the JavaScript app!")
-    print("💡 Run again to continue training from where you left off!")
+        print(f"Trained {generations_trained} new generations (from {start_generation} to {stats['generation']})")
+    print("\nYou can import this file into the JavaScript app!")
+    print("Run again to continue training from where you left off!")
 
 
 if __name__ == '__main__':
