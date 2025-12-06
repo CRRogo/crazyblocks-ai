@@ -1,0 +1,32 @@
+name: Update Strategy File
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run daily at 2 AM UTC (optional - can be removed if not needed)
+    - cron: '0 2 * * *'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Copy strategy to public folder
+        run: |
+          if [ -f "crazyblocks-strategies.json" ]; then
+            mkdir -p public
+            cp crazyblocks-strategies.json public/crazyblocks-strategies.json
+            echo "Strategy file updated"
+          else
+            echo "No strategy file found"
+          fi
+      
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/crazyblocks-strategies.json
+          git diff --staged --quiet || (git commit -m "Update strategy file [skip ci]" && git push)
+
