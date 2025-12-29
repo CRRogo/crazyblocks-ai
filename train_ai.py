@@ -990,7 +990,10 @@ class GeneticAlgorithm:
         if self.use_parallel:
             # Parallel evaluation - use serializable data
             try:
-                num_workers = min(mp.cpu_count(), self.population_size, 8)  # Limit workers
+                # Use available CPU cores (up to population size), with reasonable cap
+                # With 4 columns, games are faster so we can use more workers efficiently
+                max_workers = min(16, mp.cpu_count())  # Cap at 16 for efficiency, but allow more than 8 if available
+                num_workers = min(max_workers, self.population_size)
                 agent_data_list = [
                     {
                         'strategy': asdict(agent.strategy),
@@ -1205,16 +1208,25 @@ class GeneticAlgorithm:
         with open(self.output_file, 'w') as f:
             json.dump(data, f, indent=2)
         
-        # Also copy to public folder for web interface
+        # Also copy to public folder for web interface (used by Vite dev server)
         public_file = os.path.join('public', os.path.basename(self.output_file))
         if os.path.exists('public'):
             with open(public_file, 'w') as f:
                 json.dump(data, f, indent=2)
-            if self.save_freq > 1:
-                print(f"Saved to {self.output_file} and synced to {public_file}")
-        else:
-            if self.save_freq > 1:
-                print(f"Saved to {self.output_file}")
+        
+        # Also copy to dist folder if it exists (for production builds)
+        dist_file = os.path.join('dist', os.path.basename(self.output_file))
+        if os.path.exists('dist'):
+            with open(dist_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        
+        if self.save_freq > 1:
+            locations = [self.output_file]
+            if os.path.exists('public'):
+                locations.append(public_file)
+            if os.path.exists('dist'):
+                locations.append(dist_file)
+            print(f"Saved to: {', '.join(locations)}")
 
     def get_stats(self) -> Dict:
         """Get current statistics"""
