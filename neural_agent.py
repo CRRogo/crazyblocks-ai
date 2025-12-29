@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 # Game constants (must match train_ai.py)
-COLUMNS = 5
+COLUMNS = 4
 ROWS = 17
 COLORS = ['#6BA85A', '#A08FB8', '#D4A5A0', '#7DADB5']
 COLOR_INDICES = {color: idx for idx, color in enumerate(COLORS)}

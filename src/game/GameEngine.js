@@ -1,5 +1,5 @@
 // Headless game engine for RL training
-export const COLUMNS = 5
+export const COLUMNS = 4
 export const ROWS = 17
 export const COLORS = ['#6BA85A', '#A08FB8', '#D4A5A0', '#7DADB5'] // Rich Emerald, Amethyst, Rose Amber, Blue Teal
 export const COLOR_INDICES = [0, 1, 2, 3] // For easier state representation

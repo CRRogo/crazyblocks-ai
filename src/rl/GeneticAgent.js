@@ -25,6 +25,19 @@ export class GeneticAgent {
         columnBalanceWeight: strategy.columnBalanceWeight || 0,
         groupMergingWeight: strategy.groupMergingWeight || 0,
         averageBlocksWeight: strategy.averageBlocksWeight || 0,
+        maxColumnReductionWeight: strategy.maxColumnReductionWeight || 0,
+        smallClearEnablerWeight: strategy.smallClearEnablerWeight || 0,
+        bottomTouchingAvoidanceWeight: strategy.bottomTouchingAvoidanceWeight || 0,
+        colorConcentrationWeight: strategy.colorConcentrationWeight || 0,
+        topRowAvoidanceWeight: strategy.topRowAvoidanceWeight || 0,
+        columnIsolationPenaltyWeight: strategy.columnIsolationPenaltyWeight || 0,
+        criticalColumnFocusWeight: strategy.criticalColumnFocusWeight || 0,
+        sideConnectionRequirementWeight: strategy.sideConnectionRequirementWeight || 0,
+        prevalentColorAvoidanceWeight: strategy.prevalentColorAvoidanceWeight || 0,
+        largeBlockBuildingWeight: strategy.largeBlockBuildingWeight || 0,
+        fullColumnSpanBonusWeight: strategy.fullColumnSpanBonusWeight || 0,
+        gameOverPreventionWeight: strategy.gameOverPreventionWeight || 0,
+        criticalColumnClearanceWeight: strategy.criticalColumnClearanceWeight || 0,
       }
     } else {
       // Initialize random strategy

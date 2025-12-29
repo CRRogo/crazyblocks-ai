@@ -1,4 +1,6 @@
 // Simple Q-Learning agent for Crazy Blocks
+import { COLUMNS } from '../game/GameEngine'
+
 export class RLAgent {
   constructor(learningRate = 0.1, discountFactor = 0.95, epsilon = 1.0, epsilonDecay = 0.995, epsilonMin = 0.01) {
     this.learningRate = learningRate
@@ -58,7 +60,7 @@ export class RLAgent {
       let bestQValue = -Infinity
       
       for (const action of validActions) {
-        const actionIndex = action.row * 5 + action.col
+        const actionIndex = action.row * COLUMNS + action.col
         const qValue = this.getQValue(state, actionIndex)
         if (qValue > bestQValue) {
           bestQValue = qValue
@@ -79,7 +81,7 @@ export class RLAgent {
     if (nextValidActions && nextValidActions.length > 0) {
       maxNextQ = Math.max(
         ...nextValidActions.map(action => {
-          const idx = action.row * 5 + action.col
+          const idx = action.row * COLUMNS + action.col
           return this.getQValue(nextState, idx)
         })
       )
@@ -106,7 +108,7 @@ export class RLAgent {
       
       // Choose action
       const action = this.chooseAction(state, validActions)
-      const actionIndex = action.row * 5 + action.col
+      const actionIndex = action.row * COLUMNS + action.col
       
       // Take action
       const result = gameEngine.act(action.row, action.col)

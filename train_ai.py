@@ -9,14 +9,14 @@ import os
 import random
 import time
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, fields
 from pathlib import Path
 import argparse
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing as mp
 
 # Game constants (must match JavaScript)
-COLUMNS = 5
+COLUMNS = 4
 ROWS = 17
 COLORS = ['#6BA85A', '#A08FB8', '#D4A5A0', '#7DADB5']
 COLOR_INDICES = {color: idx for idx, color in enumerate(COLORS)}
@@ -37,11 +37,11 @@ class Strategy:
     colorBalanceWeight: float = 0.0
     topDensityWeight: float = 0.0
     multiCascadeWeight: float = 0.0
-    minimumGroupSizeWeight: float = 0.0  # NEW: Penalty for groups < 5 blocks
-    largeGroupBonusWeight: float = 0.0  # NEW: Bonus for groups >= 5 blocks
+    minimumGroupSizeWeight: float = 0.0  # NEW: Penalty for groups < 4 blocks
+    largeGroupBonusWeight: float = 0.0  # NEW: Bonus for groups >= 4 blocks
     columnBalanceWeight: float = 0.0  # NEW: Column height balance (keep columns similar height)
     groupMergingWeight: float = 0.0  # NEW: Group merging potential (reward small eliminations that merge large groups)
-    averageBlocksWeight: float = 0.0  # NEW: Average blocks per turn (reward 5+ blocks eliminated)
+    averageBlocksWeight: float = 0.0  # NEW: Average blocks per turn (reward 4+ blocks eliminated)
     maxColumnReductionWeight: float = 0.0  # NEW: Reward moves that reduce the highest column (prevents game over)
     smallClearEnablerWeight: float = 0.0  # NEW: Reward small clears that enable future large clears
     bottomTouchingAvoidanceWeight: float = 0.0  # NEW: Avoid clearing groups touching bottom (they can grow)
@@ -243,14 +243,14 @@ class GameEngine:
         # Tiny strategic bonuses (100x smaller than score reward)
         # These provide minimal guidance but NEVER overshadow score
         
-        # Efficiency bonus: Tiny reward for meeting 5+ blocks requirement
-        if blocks_eliminated >= 5:
+        # Efficiency bonus: Tiny reward for meeting 4+ blocks requirement (break-even with blocks added per turn)
+        if blocks_eliminated >= 4:
             efficiency_bonus = 0.1  # Tiny (was 1.0)
-            if blocks_eliminated > 5:
-                efficiency_bonus += (blocks_eliminated - 5) * 0.01  # Minuscule
+            if blocks_eliminated > 4:
+                efficiency_bonus += (blocks_eliminated - 4) * 0.01  # Minuscule
         else:
             # Tiny penalty for not meeting requirement
-            efficiency_bonus = -(5 - blocks_eliminated) * 0.05  # Tiny (was 0.5)
+            efficiency_bonus = -(4 - blocks_eliminated) * 0.05  # Tiny (was 0.5)
         
         # Large group bonus: Tiny extra for big eliminations
         large_group_bonus = 0
@@ -351,18 +351,18 @@ class GeneticAgent:
         
         # NEW: Critical game mechanic - continuous reward/penalty based on blocks removed
         # The reward/punishment scales smoothly with the actual number of blocks
-        # 1 block = maximum penalty, 4 blocks = small penalty, 5 blocks = neutral
+        # 1 block = maximum penalty, 3 blocks = small penalty, 4 blocks = neutral (break-even)
         # 8 blocks = moderate bonus, 10 blocks = larger bonus, etc.
         
-        if group_size < 5:
+        if group_size < 4:
             # Penalty scales with how small the group is
-            # 1 block = -1.0, 2 blocks = -0.75, 3 blocks = -0.5, 4 blocks = -0.25
-            penalty = (5 - group_size) / 4.0  # 1.0 to 0.25 (worse for smaller groups)
+            # 1 block = -1.0, 2 blocks = -0.67, 3 blocks = -0.33
+            penalty = (4 - group_size) / 3.0  # 1.0 to 0.33 (worse for smaller groups)
             score += self.strategy.minimumGroupSizeWeight * (-penalty * 10)  # Strong negative signal
         else:
-            # Bonus scales continuously with size above 5
-            # 5 blocks = 0.0, 8 blocks = 0.3, 10 blocks = 0.5, 15 blocks = 1.0
-            bonus = min((group_size - 5) / 10.0, 1.0)  # Normalized 0.0 to 1.0, capped at 1.0
+            # Bonus scales continuously with size above 4
+            # 4 blocks = 0.0, 8 blocks = 0.4, 10 blocks = 0.6, 15 blocks = 1.0
+            bonus = min((group_size - 4) / 11.0, 1.0)  # Normalized 0.0 to 1.0, capped at 1.0
             score += self.strategy.largeGroupBonusWeight * (bonus * 10)  # Strong positive signal
         
         # Top clearing preference
@@ -543,17 +543,17 @@ class GeneticAgent:
                 merging_bonus = min((largest_merged_group - group_size) / 15.0, 1.0)  # Normalized, capped at 1.0
                 score += self.strategy.groupMergingWeight * merging_bonus * 25  # Very strong positive signal
         
-        # NEW: Average blocks per turn - reward moves that eliminate 5+ blocks
-        # Since 5 blocks are added per turn, we need to eliminate at least 5 on average
-        if group_size >= 5:
+        # NEW: Average blocks per turn - reward moves that eliminate 4+ blocks
+        # Since 4 blocks are added per turn (one per column), we need to eliminate at least 4 on average
+        if group_size >= 4:
             # Bonus for meeting the minimum requirement
             base_bonus = 1.0
             # Additional bonus for exceeding (8+ blocks gets extra reward)
-            excess_bonus = (group_size - 5) / 10.0 if group_size >= 8 else 0.0
+            excess_bonus = (group_size - 4) / 10.0 if group_size >= 8 else 0.0
             score += self.strategy.averageBlocksWeight * (base_bonus + excess_bonus) * 10
         else:
-            # Penalty for not meeting the requirement (scales with how far below 5)
-            deficit = (5 - group_size) / 5.0  # 0.0 to 0.8 (for 1-4 blocks)
+            # Penalty for not meeting the requirement (scales with how far below 4)
+            deficit = (4 - group_size) / 4.0  # 0.0 to 0.75 (for 1-3 blocks)
             score += self.strategy.averageBlocksWeight * (-deficit * 10)  # Strong negative signal
         
         # NEW STRATEGY 1: Max column reduction (prevents game over)
@@ -875,10 +875,10 @@ class GeneticAlgorithm:
     def __init__(
         self,
         population_size: int = 75,
-        mutation_rate: float = 0.15,
+        mutation_rate: float = 0.20,  # Increased for more exploration (was 0.15)
         crossover_rate: float = 0.7,
-        elite_size: int = 7,  # Increased for better preservation
-        games_per_evaluation: int = 5,  # Increased for better fitness estimates
+        elite_size: int = 5,  # Reduced to allow more exploration (was 7)
+        games_per_evaluation: int = 8,  # Increased for better fitness estimates (was 5)
         output_file: str = 'crazyblocks-strategies.json',
         use_parallel: bool = True,
         save_freq: int = 5  # Save every N generations (for speed)
@@ -898,6 +898,10 @@ class GeneticAlgorithm:
         self.population: List[GeneticAgent] = []
         self.generation = 0
         self.history = []
+        self.fitness_history = []  # Track fitness over time for stagnation detection
+        self.stagnation_threshold = 50  # Generations without improvement
+        self.stagnation_counter = 0
+        self.last_best_fitness = 0.0
         
         # Load existing or initialize new
         if not self.load_population():
@@ -922,8 +926,14 @@ class GeneticAlgorithm:
                 return False
             
             self.population = []
+            # Get valid Strategy field names
+            valid_fields = {f.name for f in fields(Strategy)}
+            
             for agent_data in strategies_data:
                 strategy_dict = agent_data.get('strategy', {})
+                # Filter out unknown parameters (backward compatibility)
+                strategy_dict = {k: v for k, v in strategy_dict.items() if k in valid_fields}
+                
                 # Add default values for new heuristics if missing (backward compatibility)
                 defaults = {
                     'columnHeightWeight': 0.0,
@@ -964,6 +974,10 @@ class GeneticAlgorithm:
                 self.population = self.population[:self.population_size]
             
             self.generation = data.get('generation', 0)
+            # Initialize stagnation tracking from loaded population
+            if self.population:
+                self.population.sort(key=lambda a: a.fitness, reverse=True)
+                self.last_best_fitness = self.population[0].fitness
             print(f"Loaded {len(self.population)} strategies from generation {self.generation}")
             return True
             
@@ -1031,17 +1045,32 @@ class GeneticAlgorithm:
         tournament = random.sample(self.population, min(tournament_size, len(self.population)))
         return max(tournament, key=lambda a: a.fitness)
 
-    def create_next_generation(self, avg_fitness: float = 0.0):
-        """Create next generation with adaptive exploration"""
-        # Calculate exploration boost based on average fitness
+    def create_next_generation(self, avg_fitness: float = 0.0, best_fitness: float = 0.0):
+        """Create next generation with adaptive exploration and stagnation handling"""
+        # Detect stagnation - if best fitness hasn't improved significantly
+        fitness_improvement = best_fitness - self.last_best_fitness
+        if fitness_improvement < 5.0:  # Less than 5 fitness improvement
+            self.stagnation_counter += 1
+        else:
+            self.stagnation_counter = 0
+            self.last_best_fitness = best_fitness
+        
+        # Calculate exploration boost based on average fitness AND stagnation
+        base_boost = 1.0
         if avg_fitness < self.exploration_threshold:
             # Below threshold - increase exploration
             # Boost scales from 1.0 (at threshold) to 3.0 (at 0)
             fitness_ratio = max(0, avg_fitness / self.exploration_threshold)
-            self.exploration_boost = 1.0 + (1.0 - fitness_ratio) * 2.0  # 1.0 to 3.0
-        else:
-            # Above threshold - normal exploration
-            self.exploration_boost = 1.0
+            base_boost = 1.0 + (1.0 - fitness_ratio) * 2.0  # 1.0 to 3.0
+        
+        # Stagnation boost - dramatically increase exploration if stuck
+        stagnation_boost = 1.0
+        if self.stagnation_counter >= self.stagnation_threshold:
+            # Been stuck for a while - force major exploration
+            stagnation_factor = min(2.0, (self.stagnation_counter - self.stagnation_threshold) / 25.0)
+            stagnation_boost = 1.0 + stagnation_factor  # Up to 3x boost total
+        
+        self.exploration_boost = base_boost * stagnation_boost
         
         new_population = []
         
@@ -1057,30 +1086,44 @@ class GeneticAlgorithm:
             elite.best_score = self.population[i].best_score
             new_population.append(elite)
         
-        # Add random diversity (more if exploring)
+        # Add random diversity (more if exploring or stagnant)
         base_diversity = 0.05
         if self.exploration_boost > 1.5:
             # Increase diversity when exploring
             base_diversity = 0.15  # 15% random diversity
+        if self.stagnation_counter >= self.stagnation_threshold:
+            # Force even more diversity when stagnant
+            base_diversity = max(base_diversity, 0.25)  # 25% random diversity
+        
         num_random = max(1, int(self.population_size * base_diversity))
         for _ in range(num_random):
             new_population.append(GeneticAgent())
         
         # Fill rest with crossover and mutation (with exploration boost)
         effective_mutation_rate = self.mutation_rate * self.exploration_boost
-        effective_mutation_rate = min(effective_mutation_rate, 0.5)  # Cap at 50%
+        effective_mutation_rate = min(effective_mutation_rate, 0.75)  # Cap at 75% (was 50%)
+        
+        # Periodic large mutation events when stagnant
+        large_mutation_rate = effective_mutation_rate
+        if self.stagnation_counter >= self.stagnation_threshold and random.random() < 0.3:
+            # 30% chance of large mutation event
+            large_mutation_rate = min(1.0, effective_mutation_rate * 2.0)
         
         while len(new_population) < self.population_size:
+            use_large_mutation = (self.stagnation_counter >= self.stagnation_threshold and 
+                                  random.random() < 0.3)
+            mutation_rate_to_use = large_mutation_rate if use_large_mutation else effective_mutation_rate
+            
             if random.random() < self.crossover_rate and len(new_population) < self.population_size - 1:
                 # Crossover
                 parent1 = self.tournament_selection()
                 parent2 = self.tournament_selection()
                 child_strategy = parent1.strategy.crossover(parent2.strategy)
-                new_population.append(GeneticAgent(child_strategy.mutate(effective_mutation_rate)))
+                new_population.append(GeneticAgent(child_strategy.mutate(mutation_rate_to_use)))
             else:
                 # Mutation only
                 parent = self.tournament_selection()
-                new_population.append(GeneticAgent(parent.strategy.mutate(effective_mutation_rate)))
+                new_population.append(GeneticAgent(parent.strategy.mutate(mutation_rate_to_use)))
         
         self.population = new_population
         self.generation += 1
@@ -1092,11 +1135,23 @@ class GeneticAlgorithm:
         
         best_agent = self.population[0]
         avg_fitness = sum(a.fitness for a in self.population) / len(self.population)
+        best_fitness = best_agent.fitness
+        
+        # Track fitness history
+        self.fitness_history.append({
+            'generation': self.generation,
+            'best_fitness': best_fitness,
+            'avg_fitness': avg_fitness,
+            'best_score': best_agent.best_score
+        })
+        # Keep only last 100 generations of history
+        if len(self.fitness_history) > 100:
+            self.fitness_history.pop(0)
         
         elapsed = time.time() - start_time
         
-        # Pass avg_fitness to create_next_generation for adaptive exploration
-        self.create_next_generation(avg_fitness)
+        # Pass avg_fitness and best_fitness to create_next_generation for adaptive exploration
+        self.create_next_generation(avg_fitness, best_fitness)
         
         # Save periodically (not every generation for speed)
         self.generations_since_save += 1
@@ -1112,7 +1167,8 @@ class GeneticAlgorithm:
             'avg_fitness': avg_fitness,
             'elapsed_time': elapsed,
             'saved': should_save,
-            'exploration_boost': self.exploration_boost
+            'exploration_boost': self.exploration_boost,
+            'stagnation_counter': self.stagnation_counter
         }
 
     def save_population(self):
@@ -1187,7 +1243,7 @@ def main():
     parser = argparse.ArgumentParser(description='Train Crazy Blocks AI using Genetic Algorithm')
     parser.add_argument('--generations', type=int, default=None, help='Number of generations to train (default: unlimited - runs until Ctrl+C)')
     parser.add_argument('--population', type=int, default=50, help='Population size')
-    parser.add_argument('--games', type=int, default=3, help='Games per evaluation (fewer = faster, default: 3 for speed)')
+    parser.add_argument('--games', type=int, default=8, help='Games per evaluation (more = better estimates, default: 8)')
     parser.add_argument('--output', type=str, default='crazyblocks-strategies.json', help='Output JSON file')
     parser.add_argument('--no-parallel', action='store_true', help='Disable parallel processing')
     parser.add_argument('--mutation-rate', type=float, default=0.15, help='Mutation rate')
@@ -1256,16 +1312,21 @@ def main():
             
             save_indicator = " [SAVED]" if result.get('saved', False) else ""
             exploration_indicator = ""
-            if result['avg_fitness'] < args.exploration_threshold:
-                boost = result.get('exploration_boost', 1.0)
-                exploration_indicator = f" [EXPLORING x{boost:.1f}]"
+            stagnation_indicator = ""
+            boost = result.get('exploration_boost', 1.0)
+            if boost > 1.1:
+                exploration_indicator = f" [EXPLORE x{boost:.1f}]"
+            
+            # Check stagnation from ga object
+            if ga.stagnation_counter >= 25:
+                stagnation_indicator = f" [STAGNANT {ga.stagnation_counter} gens]"
             
             print(
                 f"Gen {current_gen:4d} | "
                 f"Best: {result['best_score']:6.0f} "
                 f"(Fitness: {result['best_fitness']:7.2f}) | "
                 f"Avg: {result['avg_fitness']:7.2f} | "
-                f"Time: {result['elapsed_time']:5.2f}s{exploration_indicator}{save_indicator}"
+                f"Time: {result['elapsed_time']:5.2f}s{exploration_indicator}{stagnation_indicator}{save_indicator}"
             )
             
             # If no target, continue forever. If target specified, loop will break when reached.

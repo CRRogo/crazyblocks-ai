@@ -3,7 +3,7 @@ import './Game.css'
 import { GeneticAgent } from '../rl/GeneticAgent'
 import { GameEngine } from '../game/GameEngine'
 
-const COLUMNS = 5
+const COLUMNS = 4
 const ROWS = 17
 const COLORS = ['#6BA85A', '#A08FB8', '#D4A5A0', '#7DADB5'] // Rich Emerald, Amethyst, Rose Amber, Blue Teal
 
